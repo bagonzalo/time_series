@@ -1,0 +1,21 @@
+data = pd.read_csv('international-airline-passengers.csv', names = ['date', 'value'], header = None,
+                 engine='python', skipfooter=3)
+data.drop(0, inplace = True)
+
+def create_df_ts(df, time_col_name, look_back = 1):
+    number_features = look_back
+    df.rename(columns = {time_col_name: 'timestamp'}, inplace = True)
+    df_ts = pd.DataFrame(df.timestamp[look_back:])
+    df_ts.reset_index(drop = True, inplace = True)
+    df_ts['label'] = df.value[look_back:].reset_index(drop = True)
+    for i in range(number_features):
+        df_ts['feat_' + str(i + 1)] = df.value[i:len(df)-look_back].reset_index(drop = True)
+    return df_ts
+
+dataset = create_df_ts(data, 'date', 4)
+print(dataset.shape)
+train = dataset[:train_size]
+test = dataset[train_size:]
+print(train.shape, test.shape)
+
+train[:3]
